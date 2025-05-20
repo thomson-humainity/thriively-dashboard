@@ -19,9 +19,9 @@ def render_scores_metrics(filtered_df):
         ]
     ].mean()
 
-    # Create a 3x3 grid of metrics
+    # Create a 4-column layout for metrics and attrition risk plot
     st.subheader("Overall Metrics")
-    col1, col2, col3 = st.columns(3)
+    col1, col2, col3, col4 = st.columns([1, 1, 1, 1.5])
 
     with col1:
         st.metric(
@@ -49,6 +49,33 @@ def render_scores_metrics(filtered_df):
             label="📈 Engagement Score",
             value=f"{overall_averages['engagement_score']:.1f}",
         )
+
+    with col4:
+        # Create bar plot for attrition risk distribution
+        attrition_counts = filtered_df["attrition_risk"].value_counts().reset_index()
+        attrition_counts.columns = ["Risk Level", "Count"]
+
+        # Define color mapping for risk levels
+        color_map = {
+            "Low": "#2ecc71",  # Green
+            "Medium": "#f1c40f",  # Yellow
+            "High": "#e74c3c",  # Red
+        }
+
+        fig = px.bar(
+            attrition_counts,
+            x="Risk Level",
+            y="Count",
+            title="Attrition Risk Distribution",
+            color="Risk Level",
+            color_discrete_map=color_map,
+        )
+
+        fig.update_layout(
+            showlegend=False, margin=dict(l=20, r=20, t=40, b=20), height=300
+        )
+
+        st.plotly_chart(fig, use_container_width=True)
 
 
 def render_scores_chart(filtered_df):
